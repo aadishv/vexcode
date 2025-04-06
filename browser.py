@@ -1,45 +1,69 @@
+import asyncio
 import time
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 
-def open_headless_chromium():
-    # Configure Chromium options for headless mode
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.binary_location = "/usr/bin/chromium-browser"  # Path to Chromium on Ubuntu
-    
-    try:
-        # For older Selenium versions compatible with Chromium 97
-        driver = webdriver.Chrome(options=options)
-        
-        # Open the URL
-        url = "http://localhost:8080/vexcode.html"
-        print(f"Opening {url} in headless Chromium...")
-        driver.get(url)
-        
-        # Wait for a moment to ensure the page loads
-        time.sleep(2)
-        
-        # Optional: Print the page title to confirm it loaded
-        print(f"Page title: {driver.title}")
-        
-        # Optional: Take a screenshot as proof the page loaded
-        driver.save_screenshot("vexcode_screenshot.png")
-        print("Screenshot saved as vexcode_screenshot.png")
-        
-        # Keep the browser open
-        input("Press Enter to close the browser...")
-        
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    
-    finally:
-        # Close the browser
-        if 'driver' in locals():
-            driver.quit()
+import pyautogui
+from playwright.async_api import async_playwright
+
+import receiver
+
+# type 4 == ring??
+#
+# blue
+# [{'id': 2, 'type': 4, 'location': {'xPos': 143, 'yPos': 44, 'width': 135, 'height': 69}, 'score': 74}]
+# red
+# [{'id': 1, 'type': 4, 'location': {'xPos': 48, 'yPos': 93, 'width': 135, 'height': 56}, 'score': 97}]
+# mogo
+# [{'id': 0, 'type': 4, 'location': {'xPos': 33, 'yPos': 46, 'width': 133, 'height': 191}, 'score': 98}]
+
+
+async def open_page_headless():
+    # Launch Playwright
+    async with async_playwright() as p:
+        # Launch a browser with headless=False to make it visible
+        browser = await p.chromium.launch(headless=False)
+        # Create a new page
+        context = await browser.new_context(permissions=["camera"])
+        page = await context.new_page()
+
+        # Navigate to the specified URL
+        url = "http://localhost:8000/vexcode.html"
+        print(f"Navigating to {url}")
+
+        try:
+            response = await page.goto(url)
+
+            # Check if the navigation was successful
+            if response and response.ok:
+                print(f"Successfully loaded the page. Status: {response.status}")
+
+                # Get page title
+                title = await page.title()
+                print(f"Page title: {title}")
+                await page.evaluate(f"() => {{ {open('test.js', 'r').read()} }}")
+                time.sleep(0.1)
+                pyautogui.press("tab")
+                time.sleep(0.1)
+                pyautogui.press("up")
+                time.sleep(0.1)
+                pyautogui.press("enter")
+                time.sleep(0.1)
+                await page.evaluate(f"() => {{ {open('test2.js', 'r').read()} }}")
+                # Wait longer since we're viewing the browser visually
+                print("Browser is visible. Press Ctrl+C to close...")
+                receiver.start_app()
+            else:
+                status = response.status if response else "unknown"
+                print(f"Failed to load the page. Status: {status}")
+
+        except Exception as e:
+            print(f"An error occurre  {e}")
+
+        finally:
+            # Close the browser
+            await browser.close()
             print("Browser closed")
 
+
+# Run the async function
 if __name__ == "__main__":
-    open_headless_chromium()
+    asyncio.run(open_page_headless())
