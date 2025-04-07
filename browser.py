@@ -30,7 +30,7 @@ async def open_page_headless():
         print(f"Navigating to {url}")
 
         try:
-            response = await page.goto(url)
+            response = await page.goto(url, wait_until="domcontentloaded")
 
             # Check if the navigation was successful
             if response and response.ok:

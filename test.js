@@ -21,7 +21,8 @@ getElementByInnerText("AI VISION").click();
 document.getElementsByClassName("port_select_btn flex_column ")[0].click();
 getElementByInnerText("Configure").click();
 document.getElementsByClassName("rc flat blue active ")[0].click();
-(async function () { await new Promise(r => setTimeout(r, 700)); })();
 document.getElementsByClassName("toggle_slider")[1].click();
+(async function () { await new Promise(r => setTimeout(r, 700)); })();
+console.log(document.getElementsByClassName("connectVideoBtn")[0].click(), "hello")
 document.getElementsByClassName("connectVideoBtn")[0].click();
 (async function () { await new Promise(r => setTimeout(r, 700)); })();
