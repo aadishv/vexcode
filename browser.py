@@ -1,7 +1,7 @@
 import asyncio
 import time
 
-import pyautogui
+# import pyautogui
 from playwright.async_api import async_playwright
 
 import receiver
@@ -40,13 +40,13 @@ async def open_page_headless():
                 title = await page.title()
                 print(f"Page title: {title}")
                 await page.evaluate(f"() => {{ {open('test.js', 'r').read()} }}")
-                time.sleep(0.1)
-                pyautogui.press("tab")
-                time.sleep(0.1)
-                pyautogui.press("up")
-                time.sleep(0.1)
-                pyautogui.press("enter")
-                time.sleep(0.1)
+                await asyncio.sleep(0.1)
+                await page.keyboard.press("Tab")
+                await asyncio.sleep(0.1)
+                await page.keyboard.press("ArrowUp")
+                await asyncio.sleep(0.1)
+                await page.keyboard.press("Enter")
+                await asyncio.sleep(0.1)
                 await page.evaluate(f"() => {{ {open('test2.js', 'r').read()} }}")
                 # Wait longer since we're viewing the browser visually
                 print("Browser is visible. Press Ctrl+C to close...")
